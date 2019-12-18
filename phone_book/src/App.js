@@ -22,18 +22,35 @@ const App = () => {
   }
 
   const addNewPerson = (person) => {
-    // check already added
+    if (isAlreadyAdded(person)) {
+      const updateConfirm = window.confirm(`${person.name} is already added to phonebook, replace the old number with a new one?`);
+      if (updateConfirm) {
+        const updateId = persons.find(item => item.name === person.name).id
+        personService
+        .update(updateId, person)
+        .then((updatedPerson) => {
+          setPersons(persons.map(person => person.id !== updatedPerson.id ? person : updatedPerson ))
+        })
+      }
+    } else {
+      personService
+        .create(person)
+        .then((createdPerson) => {
+          setPersons(persons.concat(createdPerson))
+        })
+    }
+  }
 
+  const deletePerson = (personId) => {
     personService
-      .create(person)
-      .then((createdPerson) => {
-        alert(`Added ${createdPerson.name} with number ${createdPerson.number} to Phone Book`)
-        setPersons(persons.concat(createdPerson))
+      .remove(personId)
+      .then(() => {
+        setPersons(persons.filter(person => person.id !== personId ))
       })
   }
 
   const isAlreadyAdded = (person) => {
-    return persons.find()
+    return persons.some(item => item.name === person.name)
   }
 
   const filterNumber = (keyWord) => {
@@ -51,7 +68,7 @@ const App = () => {
       <h2>Add new Number</h2>
       <PersonForm handleSubmit={addNewPerson}></PersonForm>
       <h2>Numbers</h2>
-      <Persons persons={shownPersons()}></Persons>
+      <Persons persons={shownPersons()} handleDelete={deletePerson}></Persons>
     </div>
   )
 }
