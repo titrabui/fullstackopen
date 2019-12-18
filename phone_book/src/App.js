@@ -3,23 +3,13 @@ import personService from './services/persons'
 import Persons from './components/Persons'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
+import HeaderMessage from './components/HeaderMessage'
 import './App.css'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [searchText, setSearchText] = useState('')
-
-  useEffect(() => {
-    getAllPersons()
-  }, [])
-
-  const getAllPersons = () => {
-    personService
-      .getAll()
-      .then((allPersons) => {
-        setPersons(allPersons)
-      })
-  }
+  const [message, setMessage] = useState(null)
 
   const addNewPerson = (person) => {
     if (isAlreadyAdded(person)) {
@@ -30,6 +20,7 @@ const App = () => {
         .update(updateId, person)
         .then((updatedPerson) => {
           setPersons(persons.map(person => person.id !== updatedPerson.id ? person : updatedPerson ))
+          setHeaderMessage({ text: `Updated ${updatedPerson.name} with number ${updatedPerson.number}`, type: 'success' })
         })
       }
     } else {
@@ -37,6 +28,7 @@ const App = () => {
         .create(person)
         .then((createdPerson) => {
           setPersons(persons.concat(createdPerson))
+          setHeaderMessage({ text: `Added ${person.name} to the phone book`, type: 'success' })
         })
     }
   }
@@ -46,6 +38,7 @@ const App = () => {
       .remove(personId)
       .then(() => {
         setPersons(persons.filter(person => person.id !== personId ))
+        setHeaderMessage({ text: `Deleted success`, type: 'success' })
       })
   }
 
@@ -61,9 +54,31 @@ const App = () => {
     return (persons || []).filter(person => person.name.indexOf(searchText) > -1)
   }
 
+  const setHeaderMessage = (messageObject) => {
+    setMessage(messageObject)
+    setTimeout(() => {
+      setMessage(null)
+    }, 5000)
+  }
+
+  useEffect(() => {
+    const getAllPersons = () => {
+      personService
+        .getAll()
+        .then((allPersons) => {
+          setPersons(allPersons)
+        }).catch(() => {
+          setHeaderMessage({ text: 'Seems have problem with phone book server!!!', type: 'error' })
+        })
+    }
+
+    getAllPersons()
+  }, [])
+
   return (
     <div style={{marginLeft: '2em'}}>
-      <h2>Phonebook</h2>
+      <h1>Phonebook</h1>
+      <HeaderMessage message={message}></HeaderMessage>
       <Filter persons={persons} handleFilter={filterNumber}></Filter>
       <h2>Add new Number</h2>
       <PersonForm handleSubmit={addNewPerson}></PersonForm>
