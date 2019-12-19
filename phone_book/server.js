@@ -4,6 +4,10 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const path = require('path');
 
+// Serve any static files
+console.log(process.env.NODE_ENV);
+console.log(path.join(__dirname, 'client/build'))
+
 app.use(bodyParser.json())
 app.use(cors())
 
@@ -58,7 +62,7 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
