@@ -20,7 +20,10 @@ const App = () => {
         .update(updateId, person)
         .then((updatedPerson) => {
           setPersons(persons.map(person => person.id !== updatedPerson.id ? person : updatedPerson ))
-          setHeaderMessage({ text: `Updated ${updatedPerson.name} with number ${updatedPerson.number}`, type: 'success' })
+          setHeaderMessage({ message: `Updated ${updatedPerson.name} with number ${updatedPerson.number}`, type: 'success' })
+        })
+        .catch(error => {
+          setHeaderMessage({ message: error.response.data.error, type: 'error' })
         })
       }
     } else {
@@ -28,7 +31,10 @@ const App = () => {
         .create(person)
         .then((createdPerson) => {
           setPersons(persons.concat(createdPerson))
-          setHeaderMessage({ text: `Added ${person.name} to the phone book`, type: 'success' })
+          setHeaderMessage({ message: `Added ${person.name} to the phone book`, type: 'success' })
+        })
+        .catch(error => {
+          setHeaderMessage({ message: error.response.data.error, type: 'error' })
         })
     }
   }
@@ -38,7 +44,7 @@ const App = () => {
       .remove(personId)
       .then(() => {
         setPersons(persons.filter(person => person.id !== personId ))
-        setHeaderMessage({ text: `Deleted success`, type: 'success' })
+        setHeaderMessage({ message: `Deleted success`, type: 'success' })
       })
   }
 
@@ -56,9 +62,11 @@ const App = () => {
 
   const setHeaderMessage = (messageObject) => {
     setMessage(messageObject)
-    setTimeout(() => {
-      setMessage(null)
-    }, 5000)
+    if (messageObject.type === 'success') {
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000)
+    }
   }
 
   useEffect(() => {
@@ -68,7 +76,7 @@ const App = () => {
         .then((allPersons) => {
           setPersons(allPersons)
         }).catch(() => {
-          setHeaderMessage({ text: 'Seems have problem with phone book server!!!', type: 'error' })
+          setHeaderMessage({ message: 'Seems have problem with phone book server!!!', type: 'error' })
         })
     }
 
@@ -78,7 +86,7 @@ const App = () => {
   return (
     <div style={{marginLeft: '2em'}}>
       <h1>Phonebook</h1>
-      <HeaderMessage message={message}></HeaderMessage>
+      <HeaderMessage error={message}></HeaderMessage>
       <Filter persons={persons} handleFilter={filterNumber}></Filter>
       <h2>Add new Number</h2>
       <PersonForm handleSubmit={addNewPerson}></PersonForm>

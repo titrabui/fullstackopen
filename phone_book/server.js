@@ -16,6 +16,16 @@ app.use(bodyParser.json())
 app.use(cors())
 // app.use(logger)
 
+if (process.env.NODE_ENV === 'production') {
+  // Serve any static files
+  app.use(express.static(path.join(__dirname, 'client/build')));
+    
+  // Handle React routing, return all requests to React app
+  // app.get('*', function(req, res) {
+  //   res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+  // });
+}
+
 app.get('/info', (request, response) => {
   Person.find({}).then(persons => {
     response.send(`<h1>Phonebook has info for ${persons.length} peoples</h1><h2>${new Date().toLocaleString()}</h2>`)
@@ -63,10 +73,10 @@ app.post('/api/persons', (request, response, next) => {
 app.put('/api/persons/:id', (request, response, next) => {
   const body = request.body
 
-  const person = new Person({
+  const person = {
     name: body.name,
     number: body.number
-  })
+  }
 
   Person.findByIdAndUpdate(request.params.id, person, { new: true })
     .then(updatedPerson => {
@@ -96,7 +106,10 @@ const errorHandler = (error, request, response, next) => {
   if (error.name === 'CastError' && error.kind === 'ObjectId') {
     return response.status(400).send({ error: 'malformatted id' })
   } else if (error.name === 'ValidationError') {
-    return response.status(400).json({ error: error.message })
+    const validateErrors = Object.keys(error.errors).map(key => {
+      return { key, message: error.errors[key].message }
+    })
+    return response.status(400).json({ error: validateErrors })
   }
 
   next(error)
@@ -104,16 +117,6 @@ const errorHandler = (error, request, response, next) => {
 
 // handler of requests with result to errors
 app.use(errorHandler)
-
-if (process.env.NODE_ENV === 'production') {
-  // Serve any static files
-  app.use(express.static(path.join(__dirname, 'client/build')));
-    
-  // Handle React routing, return all requests to React app
-  app.get('*', function(req, res) {
-    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
-  });
-}
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {

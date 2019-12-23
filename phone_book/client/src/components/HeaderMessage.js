@@ -1,13 +1,21 @@
 import React from 'react';
 import './HeaderMessage.css'
 
-const HeaderMessage = ({message}) => {
-  if (message === null) return null
+const HeaderMessage = ({error}) => {
+  if (error === null || error === undefined) {
+    return null
+  } else if (typeof error.message === 'string') {
+    return (
+      <div>
+        <p className={error.type}>{error.message}</p>
+      </div>
+    );
+  }
   return (
-    <div>
-      <p className={message.type}>{message.text}</p>
+    <div className={error.type}>
+      { error.message.map(item => <li key={item.key}>{item.message}</li>) }
     </div>
-  );
+  )
 };
 
 export default HeaderMessage;
