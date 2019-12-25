@@ -48,22 +48,24 @@ blogRouter.put('/:id', async (request, response, next) => {
   try {
     const body = request.body
     const blogId = request.params.id
-    // const blog = await Blog.findById(blogId)
+    const blog = await Blog.findById(blogId)
+    const user = await User.findById(body.userId)
 
-    // if (blog.user && blog.user.toString() !== body.userId) {
-    //   const removeUser = await User.findById(blog.user.toString())
-    //   removeUser.blogs = removeUser.blogs.filter(item => item._id.toString() !== blogId)
-    //   await removeUser.save()
-    // }
+    if (blog.user && blog.user.toString() !== body.userId) {
+      const oldUser = await User.findById(blog.user.toString())
+      oldUser.blogs = oldUser.blogs.filter(item => item._id.toString() !== blogId)
+      await oldUser.save()
 
-    const newUser = await User.findById(body.userId)
+      user.blogs = user.blogs.concat(blog._id)
+      await user.save()
+    }
 
     const updateData = {
       title: body.title,
       author: body.author,
       url: body.url,
       likes: body.likes,
-      user: newUser._id
+      user: user._id
     }
 
     const updatedBlog = await Blog.findByIdAndUpdate(blogId, updateData, { new: true })
@@ -76,6 +78,11 @@ blogRouter.put('/:id', async (request, response, next) => {
 blogRouter.delete('/:id', async (request, response, next) => {
   try {
     await Blog.findByIdAndRemove(request.params.id)
+
+    const user = await User.findById(blog.user.toString())
+    user.blogs = user.blogs.filter(u => u._id.toString() !== request.params.id)
+    await user.save()
+
     response.status(204).end()
   } catch (error) {
     next(error)
