@@ -10,7 +10,18 @@ function App() {
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [newBlog, setNewBlog] = useState({}) //title: '', author: '', url: '' 
   const [message, setMessage] = useState(null)
+
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogUser')
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON)
+      setUser(user)
+      blogService.setToken(user.token)
+      getAllBlogs()
+    }
+  }, [])
 
   const getAllBlogs = async () => {
     try {
@@ -27,12 +38,33 @@ function App() {
     try {
       const user = await loginService.login({ username, password })
       setHeaderMessage({ message: 'Logined success, welcome to blog list', type: 'success' })
+      window.localStorage.setItem('loggedBlogUser', JSON.stringify(user))
       setUser(user)
+      blogService.setToken(user.token)
       setUsername('')
       setPassword('')
       getAllBlogs()
     } catch (error) {
       setHeaderMessage({ message: 'Wrong username or password', type: 'error' })
+    }
+  }
+
+  const handleLogout = () => {
+    if (window.localStorage.getItem('loggedBlogUser')) {
+      window.localStorage.removeItem('loggedBlogUser')
+      setUser(null)
+    }
+  }
+
+  const handleCreateBlog = async event => {
+    event.preventDefault()
+    try {
+      const createdBlog = await blogService.create(newBlog)
+      setHeaderMessage({ message: 'Create blog successful', type: 'success' })
+      setBlogs(blogs.concat(createdBlog))
+      setNewBlog({})
+    } catch (error) {
+      setHeaderMessage({ message: 'Create blogs failed', type: 'error' })
     }
   }
 
@@ -47,7 +79,10 @@ function App() {
 
   const loginForm = () => {
     if (user !== null) return (
-      <h4>Logined with {user.name}</h4>
+      <div>
+        <h4>Logined with {user.name}</h4>
+        <button onClick={() => handleLogout()}>logout</button>
+      </div>
     )
 
     return (
@@ -79,6 +114,43 @@ function App() {
     )
   }
 
+  const blogCreate = () => {
+    return (
+      <div>
+        <h2>Create New Blog</h2>
+        <form onSubmit={handleCreateBlog}>
+          <div>
+            Title
+            <input
+              name="Title"
+              value={newBlog.title || ''}
+              onChange={(event) => { setNewBlog({ ...newBlog, title: event.target.value }) }}
+            />
+          </div>
+          <div>
+            Author
+            <input
+              name="Author"
+              value={newBlog.author || ''}
+              onChange={(event) => { setNewBlog({ ...newBlog, author: event.target.value }) }}
+            />
+          </div>
+          <div>
+            URL
+            <input
+              name="Url"
+              value={newBlog.url || ''}
+              onChange={(event) => { setNewBlog({ ...newBlog, url: event.target.value }) }}
+            />
+          </div>
+          <div>
+            <button type="submit">Create</button>
+          </div>
+        </form>
+      </div>
+    )
+  }
+
   const blogList = () => {
     if (user === null) return null
 
@@ -95,6 +167,7 @@ function App() {
       <h1>Blog List</h1>
       <HeaderMessage content={message}></HeaderMessage>
       { loginForm() }
+      { user !== null && blogCreate() }
       { blogList() }
     </div>
   )
