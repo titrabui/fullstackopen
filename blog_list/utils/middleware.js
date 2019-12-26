@@ -22,13 +22,26 @@ const errorHandler = (error, request, response, next) => {
       return { key, message: error.errors[key].message }
     })
     return response.status(400).json({ error: validateErrors })
+  } else if (error.name === 'JsonWebTokenError') {
+    return response.status(401).json({
+      error: 'invalid token'
+    })
   }
 
   next(error)
 }
 
+const tokenExtractor = (request, response, next) => {
+  const authorization = request.get('authorization')
+  request.token = authorization && authorization.toLowerCase().startsWith('bearer')
+    ? authorization.substring(7)
+    : null
+  next()
+}
+
 module.exports = {
   requestLogger,
   unKnownEndpoint,
-  errorHandler
+  errorHandler,
+  tokenExtractor
 }
