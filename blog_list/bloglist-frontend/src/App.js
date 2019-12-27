@@ -3,6 +3,8 @@ import loginService from './services/login'
 import blogService from './services/blogs'
 import Blog from './components/Blog'
 import HeaderMessage from './components/HeaderMessage'
+import Togglable from './components/Togglable'
+import BlogForm from './components/BlogForm'
 import './App.css'
 
 function App() {
@@ -10,7 +12,6 @@ function App() {
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [newBlog, setNewBlog] = useState({}) //title: '', author: '', url: '' 
   const [message, setMessage] = useState(null)
 
   useEffect(() => {
@@ -56,19 +57,34 @@ function App() {
     }
   }
 
-  const handleCreateBlog = async event => {
-    event.preventDefault()
+  const handleCreateBlog = async newBlog => {
     try {
       const createdBlog = await blogService.create(newBlog)
       setHeaderMessage({ message: 'Create blog successful', type: 'success' })
       setBlogs(blogs.concat(createdBlog))
-      setNewBlog({})
     } catch (error) {
       setHeaderMessage({ message: 'Create blogs failed', type: 'error' })
     }
   }
 
-  const setHeaderMessage = (messageObject) => {
+  const handleLike = async newBlog => {
+    try {
+      const updateObject = {
+        title: newBlog.title,
+        author: newBlog.author,
+        url: newBlog.url,
+        likes: newBlog.likes + 1,
+        userId: newBlog.user.id
+      }
+
+      const updatedBlog = await blogService.update(newBlog.id, updateObject)
+      setBlogs(blogs.map(b => b.id !== updatedBlog.id ? b : updatedBlog ))
+    } catch (error) {
+      setHeaderMessage({ message: 'Like failed', type: 'error' })
+    }
+  }
+
+  const setHeaderMessage = messageObject => {
     setMessage(messageObject)
     if (messageObject.type === 'success') {
       setTimeout(() => {
@@ -114,50 +130,13 @@ function App() {
     )
   }
 
-  const blogCreate = () => {
-    return (
-      <div>
-        <h2>Create New Blog</h2>
-        <form onSubmit={handleCreateBlog}>
-          <div>
-            Title
-            <input
-              name="Title"
-              value={newBlog.title || ''}
-              onChange={(event) => { setNewBlog({ ...newBlog, title: event.target.value }) }}
-            />
-          </div>
-          <div>
-            Author
-            <input
-              name="Author"
-              value={newBlog.author || ''}
-              onChange={(event) => { setNewBlog({ ...newBlog, author: event.target.value }) }}
-            />
-          </div>
-          <div>
-            URL
-            <input
-              name="Url"
-              value={newBlog.url || ''}
-              onChange={(event) => { setNewBlog({ ...newBlog, url: event.target.value }) }}
-            />
-          </div>
-          <div>
-            <button type="submit">Create</button>
-          </div>
-        </form>
-      </div>
-    )
-  }
-
   const blogList = () => {
     if (user === null) return null
 
     return (
       <div>
         <h2>Blogs</h2>
-        { blogs.map(b => <Blog key={b.id} blog={b}></Blog>) }
+        { blogs.map(b => <Blog key={b.id} blog={b} handleLike={handleLike}></Blog>) }
       </div>
     )
   }
@@ -167,7 +146,12 @@ function App() {
       <h1>Blog List</h1>
       <HeaderMessage content={message}></HeaderMessage>
       { loginForm() }
-      { user !== null && blogCreate() }
+      {
+        user !== null &&
+        <Togglable buttonLabel='new blog'>
+          <BlogForm handleCreateBlog={handleCreateBlog}></BlogForm>
+        </Togglable>
+      }
       { blogList() }
     </div>
   )
