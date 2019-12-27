@@ -84,6 +84,18 @@ function App() {
     }
   }
 
+  const handleRemove = async blogId => {
+    const removeConfirm = window.confirm('Are you sure remove this blog');
+    if (removeConfirm) {
+      try {
+        await blogService.remove(blogId)
+        setBlogs(blogs.filter(b => b.id !== blogId))
+      } catch (error) {
+        setHeaderMessage({ message: 'Remove failed', type: 'error' })
+      }
+    }
+  }
+
   const setHeaderMessage = messageObject => {
     setMessage(messageObject)
     if (messageObject.type === 'success') {
@@ -136,7 +148,7 @@ function App() {
     return (
       <div>
         <h2>Blogs</h2>
-        { blogs.map(b => <Blog key={b.id} blog={b} handleLike={handleLike}></Blog>) }
+        { blogs.map(b => <Blog key={b.id} currentUser={user} blog={b} handleLike={handleLike} handleRemove={handleRemove}></Blog>) }
       </div>
     )
   }

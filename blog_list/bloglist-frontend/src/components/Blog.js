@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-const Blog = ({ blog, handleLike }) => {
+const Blog = ({ currentUser, blog, handleLike, handleRemove }) => {
   const [detailVisible, setDetailVisible] = useState(false)
   const hideWhenVisible = { display: detailVisible ? 'none' : '' }
   const showWhenVisible = { display: detailVisible ? '' : 'none' }
@@ -27,9 +27,13 @@ const Blog = ({ blog, handleLike }) => {
         <a href={blog.url}>{blog.url}</a>
         <div>
           <span>{blog.likes} likes</span>
-          <button onClick={() => handleLike(blog)}>like</button>
+          <button style={{backgroundColor: 'blue', color: 'white'}} onClick={() => handleLike(blog)}>like</button>
         </div>
         <p>added by {blog.user && blog.user.name}</p>
+        {
+          currentUser.username === blog.user.username &&
+          <button style={{backgroundColor: 'red'}} onClick={() => handleRemove(blog.id)}>remove</button>
+        }
       </div>
     </div>
   )
