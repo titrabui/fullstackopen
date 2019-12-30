@@ -1,12 +1,21 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useField } from '../hooks'
 
 const BlogForm = ({ handleCreateBlog }) => {
-  const [newBlog, setNewBlog] = useState({})
+  const title = useField('text')
+  const author = useField('text')
+  const url = useField('text')
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async event => {
     event.preventDefault()
-    handleCreateBlog(newBlog)
-    setNewBlog({})
+    await handleCreateBlog({
+      title: title.props.value,
+      author: author.props.value,
+      url: url.props.value
+    })
+    title.reset()
+    author.reset()
+    url.reset()
   }
 
   return (
@@ -15,27 +24,15 @@ const BlogForm = ({ handleCreateBlog }) => {
       <form onSubmit={handleSubmit}>
         <div>
           Title
-          <input
-            name="Title"
-            value={newBlog.title || ''}
-            onChange={(event) => { setNewBlog({ ...newBlog, title: event.target.value }) }}
-          />
+          <input {...title.props}/>
         </div>
         <div>
           Author
-          <input
-            name="Author"
-            value={newBlog.author || ''}
-            onChange={(event) => { setNewBlog({ ...newBlog, author: event.target.value }) }}
-          />
+          <input {...author.props}/>
         </div>
         <div>
           URL
-          <input
-            name="Url"
-            value={newBlog.url || ''}
-            onChange={(event) => { setNewBlog({ ...newBlog, url: event.target.value }) }}
-          />
+          <input {...url.props}/>
         </div>
         <div>
           <button type="submit">Create</button>
