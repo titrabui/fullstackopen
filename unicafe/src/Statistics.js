@@ -1,6 +1,10 @@
 import React from 'react'
 
-const Statistics = ({ good, neutral, bad }) => {
+const Statistics = ({ feedbacks }) => {
+  const good = feedbacks.good
+  const neutral = feedbacks.neutral
+  const bad = feedbacks.bad
+
   const average = ((good + (bad * -1)) / 3).toFixed(2)
   const all = good + neutral + bad
   const positive = ((good * 100) / all).toFixed(2);

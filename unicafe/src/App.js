@@ -1,33 +1,38 @@
-import React, { useState } from 'react'
+import React from 'react'
+import ReactDOM from 'react-dom';
+import { createStore } from 'redux'
+import feedbackReducer from './reducers/feedbackReducer'
 import Button from './Button'
 import Statistics from './Statistics'
 import './App.css'
 
-const App = () => {
-  const [good, setGood] = useState(0)
-  const [neutral, setNeutral] = useState(0)
-  const [bad, setBad] = useState(0)
+const store = createStore(feedbackReducer)
+let feedbacks = store.getState()
 
-  const giveFeedback = (type) => {
-    if (type === 'good') {
-      setGood(good + 1)
-    } else if (type === 'neutral') {
-      setNeutral(neutral + 1)
-    } else {
-      setBad(bad + 1)
-    }
+const App = () => {
+  const giveFeedback = type => {
+    store.dispatch({ type })
   }
 
   return (
     <div style={{marginLeft: '2em'}}>
       <h1>Unicafe Feedback</h1>
-      <Button handleClick={() => giveFeedback('good') } text="Good"/>
-      <Button handleClick={() => giveFeedback('neutral') } text="Neutral"/>
-      <Button handleClick={() => giveFeedback('bad') } text="Bad"/>
+      <Button handleClick={() => giveFeedback('GOOD')} text="Good"/>
+      <Button handleClick={() => giveFeedback('NEUTRAL')} text="Neutral"/>
+      <Button handleClick={() => giveFeedback('BAD')} text="Bad"/>
 
-      <Statistics good={good} neutral={neutral} bad={bad}></Statistics>
+      <Statistics feedbacks={feedbacks}></Statistics>
     </div>
   )
 }
+
+const renderApp = () => {
+  ReactDOM.render(<App />, document.getElementById('root'))
+}
+
+store.subscribe(() => {
+  feedbacks = store.getState()
+  renderApp()
+})
 
 export default App;
