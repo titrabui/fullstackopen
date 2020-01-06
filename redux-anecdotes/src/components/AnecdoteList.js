@@ -1,21 +1,21 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
-import { voteAnecdote } from '../reducers/anecdoteReducer'
-import { setNotification, removeNotification } from '../reducers/notificationReducer'
+import { initAnecdotes, voteAnecdote } from '../reducers/anecdoteReducer'
+import { setNotification } from '../reducers/notificationReducer'
 
 const AnecdoteList = (props) => {
   const anecdotes = props.anecdotes
 
+  useEffect(() => {
+    props.initAnecdotes()
+  }, [])
+
   const vote = (id) => {
     console.log('vote', id)
-    props.voteAnecdote(id)
 
     const targetAnecdote = anecdotes.find(a => a.id === id)
+    props.voteAnecdote(id)
     props.setNotification(`Voted ${targetAnecdote.content}`)
-
-    setTimeout(() => {
-      props.removeNotification()
-    }, 5000)
   }
 
   return (
@@ -49,9 +49,9 @@ const mapStateToProps = (state) => {
 }
 
 const mapDispatchToProps = {
+  initAnecdotes,
   voteAnecdote,
-  setNotification,
-  removeNotification
+  setNotification
 }
 
 export default connect(
