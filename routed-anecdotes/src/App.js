@@ -3,26 +3,48 @@ import {
   BrowserRouter as Router,
   Route, Link, Redirect, withRouter
 } from 'react-router-dom'
+import {
+  Table, Form, Button, Alert,
+  Navbar, Nav
+} from 'react-bootstrap'
 
 const Menu = () => {
   const padding = {
     paddingRight: 5
   }
   return (
-    <div>
-      <Link style={padding} to="/">anecdotes</Link>
-      <Link style={padding} to="/create">create new</Link>
-      <Link style={padding} to="/about">about</Link>
-    </div>
+    <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+      <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+      <Navbar.Collapse id="responsive-navbar-nav">
+        <Nav className="mr-auto">
+          <Nav.Link href="#" as="span">
+            <Link style={padding} to="/">Anecdotes</Link>
+          </Nav.Link>
+          <Nav.Link href="#" as="span">
+            <Link style={padding} to="/create">Create new</Link>
+          </Nav.Link>
+          <Nav.Link href="#" as="span">
+            <Link style={padding} to="/about">About</Link>
+          </Nav.Link>
+        </Nav>
+      </Navbar.Collapse>
+    </Navbar>
   )
 }
 
 const AnecdoteList = ({ anecdotes }) => (
   <div>
     <h2>Anecdotes</h2>
-    <ul>
-      {anecdotes.map(anecdote => <li key={anecdote.id} ><Link to={`/anecdotes/${anecdote.id}`}>{anecdote.content}</Link></li>)}
-    </ul>
+    <Table striped>
+      <tbody>
+        {anecdotes.map(anecdote =>
+          <tr key={anecdote.id}>
+            <td><Link to={`/anecdotes/${anecdote.id}`}>{anecdote.content}</Link></td>
+            <td>{anecdote.author}</td>
+          </tr>
+        )}
+      </tbody>
+    </Table>
   </div>
 )
 
@@ -78,21 +100,29 @@ const CreateNewNoHistory = (props) => {
   return (
     <div>
       <h2>create a new anecdote</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          content
-          <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
-        </div>
-        <div>
-          author
-          <input name='author' value={author} onChange={(e) => setAuthor(e.target.value)} />
-        </div>
-        <div>
-          url for more info
-          <input name='info' value={info} onChange={(e) => setInfo(e.target.value)} />
-        </div>
-        <button>create</button>
-      </form>
+      <Form onSubmit={handleSubmit}>
+        <Form.Group>
+          <Form.Label>Content</Form.Label>
+          <Form.Control
+            name='content'
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+          <Form.Label>Author</Form.Label>
+          <Form.Control
+            name='author'
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
+          />
+          <Form.Label>Url for more info</Form.Label>
+          <Form.Control
+            name='info'
+            value={info}
+            onChange={(e) => setInfo(e.target.value)}
+          />
+          <Button variant="primary" type="submit">Create</Button>
+        </Form.Group>
+      </Form>
     </div>
   )
 }
@@ -143,12 +173,12 @@ const App = () => {
   }
 
   return (
-    <div>
+    <div className="container">
       <h1>Software anecdotes</h1>
       <Router>
         <div>
           <Menu />
-          <p>{notification}</p>
+          { notification && <Alert variant="success">{notification}</Alert>}
           <Route exact path="/" render={() => <AnecdoteList anecdotes={anecdotes} />}/>
           <Route path="/create" render={() => <CreateNew addNew={addNew} />}/>
           <Route path="/about" render={() => <About />}/>
