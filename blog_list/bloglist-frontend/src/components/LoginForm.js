@@ -2,8 +2,8 @@ import React from 'react'
 import { useField } from '../hooks'
 
 const LoginForm = ({ login }) => {
-  const username = useField('text')
-  const password = useField('password')
+  const username = useField({ id: 'username', type: 'text' })
+  const password = useField({ id: 'password', type: 'password'})
 
   const handleLogin = async event => {
     event.preventDefault()
@@ -14,7 +14,7 @@ const LoginForm = ({ login }) => {
 
   return (
     <div>
-      <h2>Login</h2>
+      <h2>Log in</h2>
       <form onSubmit={handleLogin}>
         <div>
           Username

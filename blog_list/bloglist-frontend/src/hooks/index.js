@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import axios from 'axios'
 
-export const useField = (type) => {
+export const useField = ({ id, type }) => {
   const [value, setValue] = useState('')
 
   const onChange = (event) => {
@@ -14,6 +14,7 @@ export const useField = (type) => {
 
   return {
     props: {
+      id,
       type,
       value,
       onChange

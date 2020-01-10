@@ -2,9 +2,9 @@ import React from 'react';
 import { useField } from '../hooks'
 
 const BlogForm = ({ handleCreateBlog }) => {
-  const title = useField('text')
-  const author = useField('text')
-  const url = useField('text')
+  const title = useField({ id: 'title', type: 'text' })
+  const author = useField({ id: 'author', type: 'text' })
+  const url = useField({ id: 'url', type: 'text' })
 
   const handleSubmit = async event => {
     event.preventDefault()
