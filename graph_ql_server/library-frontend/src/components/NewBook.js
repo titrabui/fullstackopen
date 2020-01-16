@@ -1,41 +1,8 @@
 import React, { useState } from 'react'
-import { gql } from 'apollo-boost'
 import { useMutation } from '@apollo/react-hooks'
 import { Form, Button, Label, Icon, Message } from 'semantic-ui-react'
+import { ALL_BOOKS, CREATE_BOOK } from '../gqlDocumentNodes'
 
-const ALL_BOOKS = gql`
-  query {
-    allBooks {
-      title
-      published
-      author
-      genres
-      id
-    }
-  }
-`
-
-const CREATE_BOOK = gql`
-  mutation createBook(
-    $title: String!,
-    $author: String!,
-    $published: Int!,
-    $genres: [String!]!
-  ) {
-    addBook(
-      title: $title,
-      author: $author,
-      published: $published,
-      genres: $genres
-    ) {
-      title
-      published
-      author
-      genres
-      id
-    }
-  }
-`
 const NewBook = (props) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
@@ -44,9 +11,12 @@ const NewBook = (props) => {
   const [genres, setGenres] = useState([])
   const [errorMessage, setErrorMessage] = useState(null)
 
-  const handleError = (errors) => {
-    // setErrorMessage(errors.graphQLErrors[0].message)
-    setErrorMessage('What the fuck?')
+  const handleError = ({ graphQLErrors, networkError }) => {
+    let errors = []
+    if (graphQLErrors) errors.concat(graphQLErrors.map(error => error.message))
+    if (networkError) errors.push(networkError.toString())
+
+    setErrorMessage(errors.join(', '))
     setTimeout(() => {
       setErrorMessage(null)
     }, 10000)

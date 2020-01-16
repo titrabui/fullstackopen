@@ -22,7 +22,7 @@ const App = () => {
             onClick={() => setPage('books')}
           />
           <Menu.Item
-            name='add'
+            name='add book'
             active={page === 'add'}
             onClick={() => setPage('add')}
           />

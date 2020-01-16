@@ -1,16 +1,8 @@
-import React, { useState } from 'react'
-import { gql } from 'apollo-boost'
+import React from 'react'
 import { useQuery } from '@apollo/react-hooks'
+import EditAuthors from './EditAuthor'
+import { ALL_AUTHORS } from '../gqlDocumentNodes'
 
-const ALL_AUTHORS = gql`
-  query {
-    allAuthors {
-      name
-      born
-      bookCount
-    }
-  }
-`
 const Authors = (props) => {
   const { loading, data } = useQuery(ALL_AUTHORS)
 
@@ -45,7 +37,7 @@ const Authors = (props) => {
           )}
         </tbody>
       </table>
-
+      <EditAuthors authors={data.allAuthors}/>
     </div>
   )
 }
