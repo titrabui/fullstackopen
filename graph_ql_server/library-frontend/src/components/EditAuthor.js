@@ -10,7 +10,12 @@ const EditAuthors = (props) => {
     variables: { name: author, born: Number(born) }
   })
 
-  const handleChange = (e, { value }) => setAuthor(value)
+  const handleChange = (e, { value }) => {
+    setAuthor(value)
+    const selectedAuthor = props.authors.find(a => a.name === value)
+    setBorn(selectedAuthor.born || '')
+  }
+
   const updateBorn = () => {
     editAuthor()
     setAuthor('')
