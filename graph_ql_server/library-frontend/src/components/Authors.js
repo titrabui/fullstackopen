@@ -2,6 +2,7 @@ import React from 'react'
 import { useQuery } from '@apollo/react-hooks'
 import EditAuthors from './EditAuthor'
 import { ALL_AUTHORS } from '../gqlDocumentNodes'
+import { Dimmer, Loader } from 'semantic-ui-react'
 
 const Authors = (props) => {
   const { loading, data } = useQuery(ALL_AUTHORS)
@@ -12,7 +13,9 @@ const Authors = (props) => {
 
   if (loading) {
     return (
-      <h2>...loading</h2>
+      <Dimmer active inverted>
+        <Loader inverted>Loading</Loader>
+      </Dimmer>
     )
   }
 

@@ -9,21 +9,39 @@ const NewBook = (props) => {
   const [published, setPublished] = useState('')
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
-  const [errorMessage, setErrorMessage] = useState(null)
+  const [headerMessage, setHeaderMessage] = useState(null)
 
   const handleError = ({ graphQLErrors, networkError }) => {
     let errors = []
-    if (graphQLErrors) errors.concat(graphQLErrors.map(error => error.message))
+    if (graphQLErrors) errors = graphQLErrors.map(error => error.message)
     if (networkError) errors.push(networkError.toString())
 
-    setErrorMessage(errors.join(', '))
+    setHeaderMessage({
+      success: false,
+      error: true,
+      header: 'Create Book Failed',
+      content: errors.join(', ')
+    })
     setTimeout(() => {
-      setErrorMessage(null)
+      setHeaderMessage(null)
     }, 10000)
   }
 
-  const [addBook] = useMutation(CREATE_BOOK,  {
+  const handleCompleted = () => {
+    setHeaderMessage({
+      success: true,
+      error: false,
+      header: 'Added Book Successful',
+      content: ''
+    })
+    setTimeout(() => {
+      setHeaderMessage(null)
+    }, 10000)
+  }
+
+  const [addBook, { loading: mutationLoading }] = useMutation(CREATE_BOOK,  {
     onError: handleError,
+    onCompleted: handleCompleted,
     refetchQueries: [{ query: ALL_BOOKS }]
   })
 
@@ -57,12 +75,8 @@ const NewBook = (props) => {
 
   return (
     <div>
-      {errorMessage && <Message
-        error
-        header='Create Book Failed'
-        content={errorMessage}
-      />}
-      <Form>
+      {headerMessage && <Message { ...headerMessage }/>}
+      <Form loading={mutationLoading}>
         <Form.Field>
           <label>Title</label>
           <input
