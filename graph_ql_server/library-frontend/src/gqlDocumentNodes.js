@@ -67,5 +67,14 @@ const EDIT_AUTHOR = gql`
     }
   }
 `
+const LOGIN = gql`
+  mutation login($username: String!, $password: String!) {
+    login(username: $username, password: $password)  {
+      token
+      username
+      name
+    }
+  }
+`
 
-export { ALL_BOOKS, CREATE_BOOK, ALL_AUTHORS, EDIT_AUTHOR }
+export { ALL_BOOKS, CREATE_BOOK, ALL_AUTHORS, EDIT_AUTHOR, LOGIN }

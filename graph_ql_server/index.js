@@ -33,7 +33,9 @@ const typeDefs = gql`
   }
 
   type Token {
-    value: String!
+    token: String!
+    username: String!
+    name: String!
   }
 
   type Query {
@@ -181,7 +183,7 @@ const resolvers = {
         id: user._id
       }
 
-      return { value: jwt.sign(userForToken, process.env.SECRET) }
+      return { token: jwt.sign(userForToken, process.env.SECRET), username: user.username, name: user.name }
     }
   }
 }
